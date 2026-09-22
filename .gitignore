@@ -73,3 +73,8 @@ tests/
 
 # PACE specific
 **/data/*
+
+# Local reference checkouts; the D1 dependency is a submodule in third_party/.
+/ddt_lab/
+/ddt_ros2_control/
+/pace-sim2real/

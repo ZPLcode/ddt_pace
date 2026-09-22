@@ -63,7 +63,7 @@ Clone the PACE repository (outside of IsaacLab):
 
 ```bash
 cd ~
-git clone https://github.com/leggedrobotics/pace-sim2real.git
+git clone --recurse-submodules https://github.com/ZPLcode/ddt_pace.git
 ```
 
 ---
@@ -73,7 +73,7 @@ git clone https://github.com/leggedrobotics/pace-sim2real.git
 Activate your Conda environment and install PACE
 
 ```bash
-cd ~/pace-sim2real
+cd ~/ddt_pace
 # use 'PATH_TO_isaaclab.sh|bat -p' instead of 'python' if Isaac Lab is not installed in Python venv or conda
 python -m pip install -e source/pace_sim2real
 ```

@@ -123,7 +123,14 @@ class CMAESOptimizer:
         articulation.write_joint_position_to_sim(initial_position + self.sim_params[:, self.bias_idx], joint_ids=joint_ids)
         articulation.write_joint_velocity_to_sim(torch.zeros_like(initial_position), joint_ids=joint_ids)
         for drive_type in articulation.actuators.keys():
-            drive_indices = articulation.actuators[drive_type].joint_indices
+            # Mixed-control robots can contain non-PACE actuators (for example,
+            # the velocity-controlled D1 wheels).  They are not part of the
+            # position-identification parameter vector.
+            actuator = articulation.actuators[drive_type]
+            if not hasattr(actuator, "update_encoder_bias") or not hasattr(actuator, "update_time_lags"):
+                continue
+
+            drive_indices = actuator.joint_indices
             if isinstance(drive_indices, slice):
                 all_idx = torch.arange(joint_ids.shape[0], device=joint_ids.device)
                 drive_indices = all_idx[drive_indices]

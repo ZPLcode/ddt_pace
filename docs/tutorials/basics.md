@@ -280,7 +280,7 @@ While chirp-based signals provide a practical baseline, more advanced trajectory
 Once data collection is complete and stored in the correct directory, launch the optimization using:
 
 ```bash
-cd ~/pace-sim2real
+cd ~/ddt_pace
 python scripts/pace/fit.py --headless --num_envs=4096 --task=Isaac-Pace-Anymal-D-v0
 ```
 

@@ -55,6 +55,11 @@ class PaceDCMotor(DCMotor):
     def update_time_lags(self, delay: int | torch.Tensor, env_ids: Sequence[int] | None = None):
         if env_ids is None:
             env_ids = torch.arange(self._num_envs, device=self._device)
+        if isinstance(delay, torch.Tensor):
+            # Isaac Lab 5.1 stores DelayBuffer time lags as torch.int32.
+            # Normalize here so callers cannot accidentally pass the default
+            # torch.int64 integer dtype and trigger an index_put dtype error.
+            delay = delay.to(device=self._device, dtype=torch.int)
         self.torques_delay_buffer.set_time_lag(delay, env_ids)
 
     def compute(

@@ -1,9 +1,7 @@
 site_name: PACE Sim2Real
 site_description: "Documentation for the PACE sim-to-real pipeline for legged robots."
-site_url:  "https://pace.filipbjelonic.com"
-
-repo_name: "leggedrobotics/pace-sim2real"
-repo_url: "https://github.com/leggedrobotics/pace-sim2real"
+repo_name: "ZPLcode/ddt_pace"
+repo_url: "https://github.com/ZPLcode/ddt_pace"
 
 theme:
   name: material
@@ -40,11 +38,11 @@ nav:
   - Examples: 
       - Overview: examples/index.md
       - ANYmal: examples/anymal.md
+      - DDT D1: examples/d1.md
   - Guides:
     - Basics: tutorials/basics.md
     - Advanced: tutorials/advanced.md
     - Best practices: tutorials/best_practice.md
-  - Github Stars: star-history.md
   #   - Simulation: simulation.md
   #   - Real-world: real-world.md
   # - Concepts:
@@ -77,7 +75,6 @@ markdown_extensions:
 extra_javascript:
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
   - https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js
-  - javascripts/star-history.js
 
 extra_css:
   - styles/pace-colors.css
@@ -89,4 +86,3 @@ plugins:
   #       python:
   #         paths:
   #           - source/pace_sim2real
-

@@ -32,7 +32,7 @@ This setup allows realistic synthetic data generation while avoiding risk to the
 Inside the virtual environment, run:
 
 ```bash
-cd ~/pace-sim2real
+cd ~/ddt_pace
 python scripts/pace/data_collection.py
 ```
 
@@ -41,7 +41,7 @@ python scripts/pace/data_collection.py
 The collected data is saved in:
 
 ```
-pace-sim2real/data/anymal_d_sim/chirp_data.pt
+ddt_pace/data/anymal_d_sim/chirp_data.pt
 ```
 
 This dataset serves as the input for the PACE optimization pipeline.
@@ -70,14 +70,14 @@ In this example, the optimizer re-estimates the parameters used in the simulatio
 Inside the virtual environment, run:
 
 ```bash
-cd ~/pace-sim2real
+cd ~/ddt_pace
 python scripts/pace/fit.py --headless
 ```
 
 The optimization progress can be monitored using TensorBoard in:
 
 ```
-pace-sim2real/logs/pace/anymal_d_sim
+ddt_pace/logs/pace/anymal_d_sim
 ```
 
 ![ANYmal parameter identification](../assets/anymal_fit_web.webp)
@@ -116,7 +116,7 @@ The script:
 Inside the virtual environment, run:
 
 ```bash
-cd ~/pace-sim2real
+cd ~/ddt_pace
 python scripts/pace/plot_trajectory.py --plot_trajectory
 ```
 

@@ -10,7 +10,7 @@ title       = "PACE Sim-to-Real Pipeline"
 author      = "Filip Bjelonic"
 maintainer  = "Filip Bjelonic"
 description = "PACE software for sim-to-real transfer of legged robots"
-repository  = "https://github.com/leggedrobotics/pace-sim2real"
+repository  = "https://github.com/ZPLcode/ddt_pace"
 
 keywords = [
     "isaaclab",

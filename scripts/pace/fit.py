@@ -7,6 +7,7 @@
 """Launch Isaac Sim Simulator first."""
 
 import argparse
+from pathlib import Path
 
 from isaaclab.app import AppLauncher
 
@@ -14,6 +15,10 @@ from isaaclab.app import AppLauncher
 parser = argparse.ArgumentParser(description="Pace agent for Isaac Lab environments.")
 parser.add_argument("--num_envs", type=int, default=4096, help="Number of environments to simulate.")
 parser.add_argument("--task", type=str, default="Isaac-Pace-Anymal-D-v0", help="Name of the task.")
+parser.add_argument(
+    "--data-file", type=Path, default=None,
+    help="PACE .pt dataset; relative paths are resolved from the repository root.",
+)
 # append AppLauncher cli args
 AppLauncher.add_app_launcher_args(parser)
 # parse the arguments
@@ -55,9 +60,14 @@ def main():
     joint_order = env_cfg.sim2real.joint_order
     sim_joint_ids = torch.tensor([articulation.joint_names.index(name) for name in joint_order], device=env.unwrapped.device)
 
-    data_file = project_root() / "data" / env_cfg.sim2real.data_dir
+    data_file = args_cli.data_file or Path("data") / env_cfg.sim2real.data_dir
+    if not data_file.is_absolute():
+        data_file = project_root() / data_file
+    if not data_file.is_file():
+        raise FileNotFoundError(f"PACE dataset not found: {data_file}")
     log_dir = project_root() / "logs" / "pace" / env_cfg.sim2real.robot_name
 
+    print(f"[INFO]: Loading PACE dataset: {data_file}")
     data = torch.load(data_file)
     time_data = data["time"].to(env.unwrapped.device)
     target_dof_pos = data["des_dof_pos"].to(env.unwrapped.device)

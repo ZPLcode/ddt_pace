@@ -6,6 +6,10 @@
 PACE is a framework for **sim-to-real transfer of diverse robotic systems**, combining data-driven system identification with evolutionary optimization.
 It enables accurate actuator modeling and robust adaptation between simulation to reality by explicitly learning physically meaningful dynamics parameters.
 
+This repository adds a DDT D1 identification task and a hardware data collector.
+See the [D1 guide](docs/examples/d1.md) for collection and fitting. Collected
+robot data and fit logs stay local; they are not part of the Git repository.
+
 ---
 
 ## 🤖🐾 What is PACE?
@@ -35,8 +39,8 @@ We recommend using the **conda** or **uv** installation method, as this simplifi
 Clone or copy this project separately from the Isaac Lab installation (i.e. outside the `IsaacLab` directory):
 
 ```bash
-git clone https://github.com/leggedrobotics/pace-sim2real.git
-cd pace-sim2real
+git clone --recurse-submodules https://github.com/ZPLcode/ddt_pace.git
+cd ddt_pace
 ```
 
 ### 3. Install PACE in editable mode
@@ -67,7 +71,8 @@ These warnings are expected and indicate that certain physics properties (e.g. j
 
 ## 📚 Documentation
 
-The full PACE documentation is available online:
+The upstream PACE documentation is available online; D1 instructions for this
+repository are in the [D1 guide](docs/examples/d1.md):
 
 👉 https://pace.filipbjelonic.com
 
@@ -81,7 +86,7 @@ This documentation site is built using **MkDocs** with the **Material for MkDocs
 
 ```bash
 conda activate <isaaclab_env>
-cd path/to/pace-sim2real
+cd path/to/ddt_pace
 ```
 
 ### 2. Collect excitation data
@@ -109,6 +114,13 @@ This will estimate the actuator and joint parameters using CMA-ES and store resu
 ```
 logs/pace/anymal_d_sim/
 ```
+
+---
+
+## DDT D1
+
+See the [D1 guide](docs/examples/d1.md) for hardware collection, CSV conversion,
+and PACE fitting with real robot data.
 
 ---
 
@@ -247,15 +259,6 @@ The paper has been accepted for publication in **The International Journal of Ro
   primaryClass  = {cs.RO},
 }
 ```
-
----
-
-## ⭐ Star History
-
-[![PACE Star History](https://raw.githubusercontent.com/leggedrobotics/pace-sim2real/star-history-data/star-history.svg)](
-  https://pace.filipbjelonic.com/star-history/
-)
-
 
 ---
 

@@ -7,7 +7,7 @@ This document explains how to:
 
 - report bugs and request features
 - contribute code and documentation
-- add **new examples** (e.g. for your own robots) that may appear on the [Examples](https://pace.filipbjelonic.com/examples/) page
+- add **new examples** (e.g. for your own robots) to this repository's [examples](docs/examples/index.md)
 
 ---
 
@@ -26,14 +26,14 @@ If you plan a **larger change** (new robot integration, major API changes, etc.)
 
 ## 2. Development setup
 
-Follow the installation instructions in the official documentation.
+Follow the [installation instructions](docs/installation.md).
 
 A typical setup:
 
 ```bash
 # 1) Clone your fork
-git clone git@github.com:<your-username>/pace-sim2real.git
-cd pace-sim2real
+git clone --recurse-submodules git@github.com:<your-username>/ddt_pace.git
+cd ddt_pace
 
 # 2) Install PACE in editable mode inside the Isaac Lab environment
 python -m pip install -e source/pace_sim2real
@@ -63,7 +63,7 @@ This will apply formatting and basic checks.
     pre-commit run --all-files
     ```
 5. Push and open a Pull Request against `main`\
-    [https://github.com/leggedrobotics/pace-sim2real](https://github.com/leggedrobotics/pace-sim2real)
+    [https://github.com/ZPLcode/ddt_pace](https://github.com/ZPLcode/ddt_pace)
 
 A PR should include:
 - a short summary
@@ -80,8 +80,7 @@ We especially welcome examples for additional robots that demonstrate:
 - evaluation and visualization
 - (optionally) deployment
 
-See existing examples:\
-[https://pace.filipbjelonic.com/examples/](https://pace.filipbjelonic.com/examples/)
+See [existing examples](docs/examples/index.md).
 
 ### 4.1. Code and scripts
 
@@ -134,7 +133,7 @@ nav:
 ## 5. Reporting bugs & requesting features
 
 Please use GitHub Issues:\
-[https://github.com/leggedrobotics/pace-sim2real/issues](https://github.com/leggedrobotics/pace-sim2real/issues)
+[https://github.com/ZPLcode/ddt_pace/issues](https://github.com/ZPLcode/ddt_pace/issues)
 
 Include:
 
