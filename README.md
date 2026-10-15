@@ -1,265 +1,66 @@
-# ⚙️ PACE — Sim-to-Real Transfer for Legged Robots
-![License](https://img.shields.io/badge/license-Apache%202.0-blue)
-![Python](https://img.shields.io/badge/python-3.10+-green)
-![Status](https://img.shields.io/badge/status-active_development-orange)
+# PACE for DDT D1
 
-PACE is a framework for **sim-to-real transfer of diverse robotic systems**, combining data-driven system identification with evolutionary optimization.
-It enables accurate actuator modeling and robust adaptation between simulation to reality by explicitly learning physically meaningful dynamics parameters.
+This repository adapts [PACE](https://github.com/leggedrobotics/pace-sim2real)
+to the DDT D1 robot. It provides hardware chirp collection, data conversion,
+CMA-ES parameter identification and fitted-parameter replay in Isaac Lab.
 
-This repository adds a DDT D1 identification task and a hardware data collector.
-See the [D1 guide](docs/examples/d1.md) for collection and fitting. Collected
-robot data and fit logs stay local; they are not part of the Git repository.
+The D1 task identifies the twelve hip, thigh and calf joints. The four wheel
+joints remain in the articulation and are excluded from the position objective.
+The repository includes a D1 URDF and meshes under [assets/d1](assets/d1/README.md).
 
----
+## Installation
 
-## 🤖🐾 What is PACE?
-
-PACE (Precise Adaptation through Continuous Evolution) bridges the gap between simulation and real hardware by:
-
-* Estimating actuator and joint dynamics directly from measured data
-* Using CMA-ES for parameter optimization
-* Applying learned parameters to improve sim-to-real locomotion performance
-* Supporting multiple robot platforms and actuator types
-
-It is designed to integrate seamlessly with **NVIDIA Isaac Lab** and follows its task and environment conventions.
-
----
-
-## 📦 Installation
-
-### 1. Install Isaac Lab
-
-Follow the official Isaac Lab installation guide:
-[https://isaac-sim.github.io/IsaacLab/main/source/setup/installation/index.html](https://isaac-sim.github.io/IsaacLab/main/source/setup/installation/index.html)
-
-We recommend using the **conda** or **uv** installation method, as this simplifies running Python scripts from the terminal and managing dependencies.
-
-### 2. Clone this repository
-
-Clone or copy this project separately from the Isaac Lab installation (i.e. outside the `IsaacLab` directory):
+Install Isaac Lab and Isaac Sim 5.0 or newer, then install this extension using
+the same Python environment:
 
 ```bash
-git clone --recurse-submodules https://github.com/ZPLcode/ddt_pace.git
+git clone https://github.com/ZPLcode/ddt_pace.git
 cd ddt_pace
-```
-
-### 3. Install PACE in editable mode
-
-Using a Python interpreter that has Isaac Lab installed:
-
-```bash
-# Use 'PATH_TO_isaaclab.sh|bat -p' instead of 'python'
-# if Isaac Lab is not installed in a Python venv or conda environment
 python -m pip install -e source/pace_sim2real
 ```
-### ⚠️ Isaac Sim version compatibility
 
-PACE is developed and tested against **Isaac Sim 5.0 / Isaac Lab (latest)**.
+The hardware collector requires the D1 driver installed on the robot. Real
+recordings and simulation results are stored locally in `data/` and `logs/`.
 
-If you run the examples on older versions (e.g. Isaac Sim 4.5), you may encounter warnings such as:
+## D1 workflow
 
-```bash
-Setting joint viscous friction coefficients are not supported in Isaac Sim < 5.0
-```
-
-These warnings are expected and indicate that certain physics properties (e.g. joint viscous friction) are not supported by the older simulator version. While the examples may still run, the physical fidelity and sim-to-real accuracy will be reduced.
-
-✅ Recommended: Isaac Sim 5.0 or newer  
-⚠️ Legacy support: May run with limitations on < 5.0
-
----
-
-## 📚 Documentation
-
-The upstream PACE documentation is available online; D1 instructions for this
-repository are in the [D1 guide](docs/examples/d1.md):
-
-👉 https://pace.filipbjelonic.com
-
-This documentation site is built using **MkDocs** with the **Material for MkDocs** theme.
-
----
-
-## 🐾 Running an Example: ANYmal D
-
-### 1. Activate the Isaac Lab environment
+1. Collect a complete 20-second hardware chirp.
+2. Convert the CSV recording into PACE tensors.
+3. Fit each recording independently.
+4. Replay a recording with its fitted parameters and view the fitting error.
 
 ```bash
-conda activate <isaaclab_env>
-cd path/to/ddt_pace
+python scripts/pace/d1_csv_to_pt.py data/d1_real/RECORDING.csv
+python scripts/pace/fit.py --task Isaac-Pace-D1-v0 \
+  --data-file data/d1_real/RECORDING.pt --num_envs 4096 --headless
 ```
 
-### 2. Collect excitation data
+Add `--fixed-zero-bias` for a zero-bias fit. See the
+[D1 guide](docs/examples/d1.md) for collection, fitting and replay, and the
+[handover notes](docs/examples/d1_pace_work_report.md) for experimental methods
+and fitted parameters.
 
-(Alternatively, place your own real-world data in `data/`)
+## D1 additions
 
-```bash
-python scripts/pace/data_collection.py
-```
+The original PACE entry points remain `data_collection.py`, `fit.py` and
+`plot_trajectory.py`. D1 hardware collection adds three files:
 
-This will collect simulation data and store results in:
+| File under `scripts/pace/` | Purpose |
+|---|---|
+| `d1_hardware_chirp.cpp` | Generate the hardware trajectory and collect feedback |
+| `run_d1_hardware_chirp.sh` | Compile and launch the hardware collector |
+| `d1_csv_to_pt.py` | Convert recordings for fitting |
 
-```
-data/anymal_d_sim/chirp_data.pt
-```
+D1 robot configuration is in the task package; its URDF, meshes and generated
+geometry data are under `assets/d1/`. Fixed-parameter replay uses
+`fit.py --checkpoint`, and replay plots use `plot_trajectory.py --replay-file`.
 
-### 3. Run PACE parameter fitting
+## Other PACE tasks
 
-```bash
-python scripts/pace/fit.py
-```
+The upstream ANYmal example and RL scripts remain available. PACE documentation:
+[pace.filipbjelonic.com](https://pace.filipbjelonic.com).
 
-This will estimate the actuator and joint parameters using CMA-ES and store results in:
+## License
 
-```
-logs/pace/anymal_d_sim/
-```
-
----
-
-## DDT D1
-
-See the [D1 guide](docs/examples/d1.md) for hardware collection, CSV conversion,
-and PACE fitting with real robot data.
-
----
-
-## 🧭 Usage
-
-Recommended imports for custom projects:
-
-```python
-from pace_sim2real import PaceCfg, PaceSim2realEnvCfg, CMAESOptimizer
-from pace_sim2real.utils import PaceDCMotorCfg, PaceDCMotor
-import pace_sim2real.tasks  # registers environments
-```
-
-Please refer to the official documentation for further information.
-
-⚠️ PACE is under active development. APIs may evolve as the framework matures.
-
----
-
-## 📜 License
-
-© 2025 ETH Zurich, Robotic Systems Lab, Filip Bjelonic
-
-This project is licensed under the Apache License, Version 2.0.
-See the LICENSE file for details.
-
----
-
-## 👥 Maintainers
-
-The PACE project is actively maintained by:
-
-- Filip Bjelonic (ETH Zurich, RSL)
-- René Zurbrügg (ETH Zurich, RSL)
-- Oliver Fischer (ETH Zurich, RSL)
-
-The maintainers are responsible for reviewing contributions, managing issues, and guiding the technical direction of the framework.
-
----
-
-## 🙏 Acknowledgements
-
-We would like to thank the RSL Learning Group for many insightful discussions that influenced the development of PACE. We are especially grateful to Konrad and Matthias for valuable technical input related to electronics and system integration.
-
-We also acknowledge Zichong, Stephan, Efe, Yuntao, René, Clemens, Ryo, Alexander, and Fabio for employing and extending the PACE framework in their own research, providing valuable feedback and practical insights.
-
-We further thank Oliver Fischer and René Zurbrügg for their direct contributions to the codebase and their ongoing support as project maintainers.
-
-We also thank the early testers — Oliver, Clemens and Yasmine — who evaluated the framework prior to its public release and provided valuable feedback on usability, stability, and documentation improvements.
-
----
-
-## 🛠 Code Formatting
-
-We provide a pre-commit configuration to automatically format and lint the codebase.
-
-### Install pre-commit
-
-```bash
-pip install pre-commit
-```
-
-### Enable hooks
-
-```bash
-pre-commit install
-```
-
-### Run manually
-
-```bash
-pre-commit run --all-files
-```
-
----
-
-## 🧩 Troubleshooting
-
-### Pylance: Missing Indexing of Extensions
-
-In some VS Code versions, indexing for Isaac Lab extensions may be incomplete. Add your extension path to `.vscode/settings.json`:
-
-```json
-{
-  "python.analysis.extraPaths": [
-    "<path-to-ext-repo>/source/pace_sim2real"
-  ]
-}
-```
-
----
-
-### Pylance: Crash / High Memory Usage
-
-If Pylance crashes due to excessive indexing, exclude unused omniverse packages by commenting them out in:
-
-`.vscode/settings.json` → `python.analysis.extraPaths`
-
-Examples of packages that can often be safely excluded:
-
-```json
-"<path-to-isaac-sim>/extscache/omni.anim.*",
-"<path-to-isaac-sim>/extscache/omni.kit.*",
-"<path-to-isaac-sim>/extscache/omni.graph.*",
-"<path-to-isaac-sim>/extscache/omni.services.*"
-```
-
----
-
-## 🤝 Contributing & Feedback
-
-Internal feedback is highly welcome during this phase.
-Please report issues, unclear steps, or suggestions directly via GitHub issues or internal channels.
-
-See [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to contribute.
-
----
-
-## 📖 How to cite
-
-If you use **PACE Sim2Real** in your research, please cite our [paper](https://arxiv.org/pdf/2509.06342).
-
-The paper has been accepted for publication in **The International Journal of Robotics Research (IJRR)**. The official IJRR citation will be added here once the article is published online.
-
-> F. Bjelonic, F. Tischhauser, and M. Hutter,  
-> _Towards Bridging the Gap: Systematic Sim-to-Real Transfer for Diverse Legged Robots_, arXiv:2509.06342, 2025.
-
-```bibtex
-@article{bjelonic2025towards,
-  title         = {Towards Bridging the Gap: Systematic Sim-to-Real Transfer for Diverse Legged Robots},
-  author        = {Bjelonic, Filip and Tischhauser, Fabian and Hutter, Marco},
-  journal       = {arXiv preprint arXiv:2509.06342},
-  year          = {2025},
-  eprint        = {2509.06342},
-  archivePrefix = {arXiv},
-  primaryClass  = {cs.RO},
-}
-```
-
----
-
-**PACE** — bringing simulation and reality closer, one parameter at a time.
+PACE is licensed under Apache-2.0. Copyright 2025 ETH Zurich, Robotic Systems Lab,
+Filip Bjelonic. See [LICENSE](LICENSE) and [NOTICE](NOTICE).

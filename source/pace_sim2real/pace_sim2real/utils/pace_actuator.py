@@ -4,13 +4,14 @@
 
 from __future__ import annotations
 
-import torch
 from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
+import torch
 from isaaclab.actuators import DCMotor
-from isaaclab.utils.types import ArticulationActions
 from isaaclab.utils import DelayBuffer
+from isaaclab.utils.types import ArticulationActions
+
 if TYPE_CHECKING:
     # only for type checking
     from .pace_actuator_cfg import PaceDCMotorCfg
@@ -20,11 +21,12 @@ class PaceDCMotor(DCMotor):
     """Pace DC Motor actuator model with encoder bias and action delay.
 
     The actuator models a DC motor whose controller receives joint positions in the encoder
-    frame by adding a per-joint encoder bias to the true joint positions. In other words,
+    frame by subtracting a per-joint encoder bias from the true joint positions. In other words,
     the controller operates on biased (encoder) positions rather than the true joint positions.
 
-    The torque command computed by the PD controller is applied after a configurable delay
-    (in simulation steps) to represent latency between command calculation and actuation.
+    By default the computed torque is delayed. With ``delay_mode="command"``,
+    position/velocity/feedforward targets are delayed before evaluating PD with
+    the current joint feedback, as in Isaac Lab's DelayedPDActuator.
 
     The software implementation is inspired by DelayedPDActuator.
     """
@@ -40,14 +42,21 @@ class PaceDCMotor(DCMotor):
                     f"but got {len(cfg.encoder_bias)}: {cfg.encoder_bias}"
                 )
         self.encoder_bias = self._parse_joint_parameter(cfg.encoder_bias, 0.0)
-
+        if cfg.delay_mode not in ("torque", "command"):
+            raise ValueError(f"Unknown PACE delay mode: {cfg.delay_mode}")
         self.torques_delay_buffer = DelayBuffer(cfg.max_delay + 1, self._num_envs, device=self._device)
-        self.torques_delay_buffer.set_time_lag(cfg.max_delay, torch.arange(self._num_envs, device=self._device))
+        self.positions_delay_buffer = DelayBuffer(cfg.max_delay + 1, self._num_envs, device=self._device)
+        self.velocities_delay_buffer = DelayBuffer(cfg.max_delay + 1, self._num_envs, device=self._device)
+        self.efforts_delay_buffer = DelayBuffer(cfg.max_delay + 1, self._num_envs, device=self._device)
+        self.update_time_lags(cfg.max_delay)
 
     def reset(self, env_ids: Sequence[int]):
         super().reset(env_ids)
         # reset buffers
         self.torques_delay_buffer.reset(env_ids)
+        self.positions_delay_buffer.reset(env_ids)
+        self.velocities_delay_buffer.reset(env_ids)
+        self.efforts_delay_buffer.reset(env_ids)
 
     def update_encoder_bias(self, encoder_bias: torch.Tensor):
         self.encoder_bias = encoder_bias
@@ -60,12 +69,21 @@ class PaceDCMotor(DCMotor):
             # Normalize here so callers cannot accidentally pass the default
             # torch.int64 integer dtype and trigger an index_put dtype error.
             delay = delay.to(device=self._device, dtype=torch.int)
-        self.torques_delay_buffer.set_time_lag(delay, env_ids)
+        self.torques_delay_buffer.set_time_lag(delay if self.cfg.delay_mode == "torque" else 0, env_ids)
+        for buffer in (self.positions_delay_buffer, self.velocities_delay_buffer, self.efforts_delay_buffer):
+            buffer.set_time_lag(delay if self.cfg.delay_mode == "command" else 0, env_ids)
 
     def compute(
         self, control_action: ArticulationActions, joint_pos: torch.Tensor, joint_vel: torch.Tensor
     ) -> ArticulationActions:
-        # compute actuator model with encoder bias added to joint positions (joint position in encoder frame, not simulation frame)
+        if self.cfg.delay_mode == "command":
+            control_action.joint_positions = self.positions_delay_buffer.compute(control_action.joint_positions)
+            control_action.joint_velocities = self.velocities_delay_buffer.compute(control_action.joint_velocities)
+            control_action.joint_efforts = self.efforts_delay_buffer.compute(control_action.joint_efforts)
+        # Compute PD from the encoder-frame position, not the true simulated position.
         control_action_sim = super().compute(control_action, joint_pos - self.encoder_bias, joint_vel)
         control_action_sim.joint_efforts = self.torques_delay_buffer.compute(control_action_sim.joint_efforts)
+        # ArticulationData.applied_torque reads this value. Keep telemetry in
+        # sync with the effort actually sent to the simulator after the delay.
+        self.applied_effort = control_action_sim.joint_efforts
         return control_action_sim

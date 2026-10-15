@@ -63,7 +63,7 @@ Clone the PACE repository (outside of IsaacLab):
 
 ```bash
 cd ~
-git clone --recurse-submodules https://github.com/ZPLcode/ddt_pace.git
+git clone https://github.com/ZPLcode/ddt_pace.git
 ```
 
 ---

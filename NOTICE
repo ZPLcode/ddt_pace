@@ -4,3 +4,6 @@ Copyright 2025 ETH Zurich, Robotic Systems Lab, Filip Bjelonic
 
 This product is licensed under the Apache License, Version 2.0.
 See the LICENSE file for details.
+
+D1 URDF and meshes are copied from go2_rl_robotlab/resources/d1/.
+The repository URDF uses relative mesh paths; original asset notices are retained.

@@ -15,10 +15,10 @@ This document explains how to:
 
 You can help in many ways:
 
-- **Bug reports** – crashes, incorrect behavior, unclear error messages  
-- **Documentation improvements** – typos, unclear sections, better explanations, new guides  
-- **New examples** – full PACE workflows for other robots (data collection, parameter fitting, evaluation)  
-- **Core improvements** – actuator models, optimization utilities, environment wrappers, etc.  
+- **Bug reports** – crashes, incorrect behavior, unclear error messages
+- **Documentation improvements** – typos, unclear sections, better explanations, new guides
+- **New examples** – full PACE workflows for other robots (data collection, parameter fitting, evaluation)
+- **Core improvements** – actuator models, optimization utilities, environment wrappers, etc.
 
 If you plan a **larger change** (new robot integration, major API changes, etc.), please open a GitHub issue first so we can align on the design.
 
@@ -32,7 +32,7 @@ A typical setup:
 
 ```bash
 # 1) Clone your fork
-git clone --recurse-submodules git@github.com:<your-username>/ddt_pace.git
+git clone git@github.com:<your-username>/ddt_pace.git
 cd ddt_pace
 
 # 2) Install PACE in editable mode inside the Isaac Lab environment

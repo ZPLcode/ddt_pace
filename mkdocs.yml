@@ -35,10 +35,11 @@ nav:
       - Installation: installation.md
       - Importing: importing.md
       - Basic usage: usage.md
-  - Examples: 
+  - Examples:
       - Overview: examples/index.md
       - ANYmal: examples/anymal.md
       - DDT D1: examples/d1.md
+      - D1 PACE 交接说明: examples/d1_pace_work_report.md
   - Guides:
     - Basics: tutorials/basics.md
     - Advanced: tutorials/advanced.md

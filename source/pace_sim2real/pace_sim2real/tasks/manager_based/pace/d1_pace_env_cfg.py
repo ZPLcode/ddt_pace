@@ -7,16 +7,16 @@ The D1 has twelve position-controlled leg joints and four velocity-controlled
 wheel joints. The PACE objective identifies only the leg joints.
 """
 
-import torch
+import os
+from pathlib import Path
 
 import isaaclab.sim as sim_utils
+import torch
 from isaaclab.actuators import ImplicitActuatorCfg
 from isaaclab.assets import ArticulationCfg
 from isaaclab.utils import configclass
-
 from pace_sim2real import PaceCfg, PaceSim2realEnvCfg, PaceSim2realSceneCfg
 from pace_sim2real.utils import PaceDCMotorCfg, project_root
-
 
 D1_LEG_JOINT_ORDER = [
     "FL_hip_joint",
@@ -33,7 +33,8 @@ D1_LEG_JOINT_ORDER = [
     "RR_calf_joint",
 ]
 
-D1_URDF_PATH = project_root() / "third_party" / "ddt_ros2_control" / "urdfs" / "d1_description" / "urdf" / "robot.urdf"
+# Repository-local D1 URDF; an explicit override supports alternate assets.
+D1_URDF_PATH = Path(os.environ.get("PACE_D1_URDF", project_root() / "assets/d1/robot.urdf")).expanduser()
 
 
 D1_LEG_PACE_ACTUATOR_CFG = PaceDCMotorCfg(
@@ -43,11 +44,13 @@ D1_LEG_PACE_ACTUATOR_CFG = PaceDCMotorCfg(
     velocity_limit=20.0,
     stiffness={".*": 60.0},
     damping={".*": 2.0},
+    armature=0.0535,
     encoder_bias={".*": 0.0},
-    friction={".*": 0.0},
-    dynamic_friction={".*": 0.0},
+    friction={".*": 0.589},
+    dynamic_friction={".*": 0.589},
     viscous_friction={".*": 0.0},
     max_delay=8,
+    delay_mode="command",
 )
 
 D1_WHEEL_ACTUATOR_CFG = ImplicitActuatorCfg(
@@ -118,8 +121,8 @@ class D1PaceCfg(PaceCfg):
         self.bounds_params[:num_joints, 1] = 0.15
         self.bounds_params[num_joints : 2 * num_joints, 1] = 0.5
         self.bounds_params[2 * num_joints : 3 * num_joints, 1] = 1.2
-        self.bounds_params[3 * num_joints : 4 * num_joints, 0] = -0.1
-        self.bounds_params[3 * num_joints : 4 * num_joints, 1] = 0.1
+        self.bounds_params[3 * num_joints : 4 * num_joints, 0] = -0.3
+        self.bounds_params[3 * num_joints : 4 * num_joints, 1] = 0.3
         self.bounds_params[4 * num_joints, 1] = 8.0
 
 
@@ -141,7 +144,7 @@ class D1PaceEnvCfg(PaceSim2realEnvCfg):
         if not D1_URDF_PATH.is_file():
             raise FileNotFoundError(
                 f"D1 URDF not found at {D1_URDF_PATH}. "
-                "Run 'git submodule update --init --recursive' from the repository root."
+                "Restore assets/d1/robot.urdf and its meshes, or set PACE_D1_URDF to an existing URDF."
             )
         super().__post_init__()
         self.sim.dt = 0.0025
