@@ -6,7 +6,7 @@ CMA-ES parameter identification and fitted-parameter replay in Isaac Lab.
 
 The D1 task identifies the twelve hip, thigh and calf joints. The four wheel
 joints remain in the articulation and are excluded from the position objective.
-The repository includes a D1 URDF and meshes under [assets/d1](assets/d1/README.md).
+The repository includes a D1 URDF and meshes under [assets/d1](assets/d1/).
 
 ## Installation
 
