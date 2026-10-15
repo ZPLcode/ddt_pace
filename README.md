@@ -35,10 +35,7 @@ python scripts/pace/fit.py --task Isaac-Pace-D1-v0 \
   --data-file data/d1_real/RECORDING.pt --num_envs 4096 --headless
 ```
 
-Add `--fixed-zero-bias` for a zero-bias fit. See the
-[D1 guide](docs/examples/d1.md) for collection, fitting and replay, and the
-[handover notes](docs/examples/d1_pace_work_report.md) for experimental methods
-and fitted parameters.
+Add `--fixed-zero-bias` for a zero-bias fit.
 
 ## D1 additions
 

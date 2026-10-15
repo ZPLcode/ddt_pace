@@ -5,8 +5,6 @@ This section demonstrates practical use-cases of the PACE pipeline, from data co
 The examples are designed to help you understand how to apply PACE to real robotic systems and adapt the workflow to your own platforms.
 
 The [ANYmal example](anymal.md) covers the upstream simulation workflow.
-The [D1 guide](d1.md) covers hardware collection, data conversion, independent
-recording fits, and fitted-parameter replay.
 
 <div style="max-width: 100%; margin: 1.5em 0;">
   <video autoplay loop muted playsinline style="width: 100%; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
